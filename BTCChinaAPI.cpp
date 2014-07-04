@@ -192,7 +192,7 @@ int CBTCChinaAPI::getAccountInfo(string& result)
 }
 
 //negative price is considered as market price, negative amount as sell, and positive amount as buy. default market is BTCCNY
-int CBTCChinaAPI::PlaceOrder(string& result, double price, double amount, marketList market)
+int CBTCChinaAPI::PlaceOrder(string& result, double price, double amount, MarketType market)
 {
 	stringstream orderBuilder;
 	orderBuilder << setiosflags(ios::fixed);
@@ -232,7 +232,7 @@ int CBTCChinaAPI::PlaceOrder(string& result, double price, double amount, market
 	return DoMethod(method, mParams, result);
 }
 
-int CBTCChinaAPI::cancelOrder(string& result, int orderID, marketList market)
+int CBTCChinaAPI::cancelOrder(string& result, int orderID, MarketType market)
 {
 	string method = "cancelOrder";
 	string mParams = to_string(orderID);
@@ -249,7 +249,7 @@ int CBTCChinaAPI::cancelOrder(string& result, int orderID, marketList market)
 	return DoMethod(method, mParams, result);
 }
 
-int CBTCChinaAPI::getMarketDepth(string& result, unsigned int limit, marketList market)
+int CBTCChinaAPI::getMarketDepth(string& result, unsigned int limit, MarketType market)
 {
 	string method = "getMarketDepth2";
 	string mParams = "";
@@ -259,7 +259,7 @@ int CBTCChinaAPI::getMarketDepth(string& result, unsigned int limit, marketList 
 	return DoMethod(method, mParams, result);
 }
 
-int CBTCChinaAPI::getDeposits(string& result, currencyList currency, bool pendingonly)
+int CBTCChinaAPI::getDeposits(string& result, CurrencyType currency, bool pendingonly)
 {
 	string method = "getDeposits";
 	string mParams = "\"" + currencies[currency] + "\"";
@@ -268,7 +268,7 @@ int CBTCChinaAPI::getDeposits(string& result, currencyList currency, bool pendin
 	return DoMethod(method, mParams, result);
 }
 
-int CBTCChinaAPI::getWithdrawals(string& result, currencyList currency, bool pendingonly)
+int CBTCChinaAPI::getWithdrawals(string& result, CurrencyType currency, bool pendingonly)
 {
 	string method = "getWithdrawals";
 	string mParams = "\"" + currencies[currency] + "\"";
@@ -277,7 +277,7 @@ int CBTCChinaAPI::getWithdrawals(string& result, currencyList currency, bool pen
 	return DoMethod(method, mParams, result);
 }
 
-int CBTCChinaAPI::getWithdrawal(string& result, int withdrawalID, currencyList currency)
+int CBTCChinaAPI::getWithdrawal(string& result, int withdrawalID, CurrencyType currency)
 {
 	string method = "getWithdrawal";
 	string mParams = to_string(withdrawalID);
@@ -286,7 +286,7 @@ int CBTCChinaAPI::getWithdrawal(string& result, int withdrawalID, currencyList c
 	return DoMethod(method, mParams, result);
 }
 
-int CBTCChinaAPI::requestWithdrawal(string& result, currencyList currency, double amount)
+int CBTCChinaAPI::requestWithdrawal(string& result, CurrencyType currency, double amount)
 {
 	if (amount <= 0)
 	{
@@ -300,7 +300,7 @@ int CBTCChinaAPI::requestWithdrawal(string& result, currencyList currency, doubl
 	return DoMethod(method, paraBuilder.str(), result);
 }
 
-int CBTCChinaAPI::getOrder(string& result, unsigned int orderID, marketList market)
+int CBTCChinaAPI::getOrder(string& result, unsigned int orderID, MarketType market)
 {
 	if (market == ALL)
 	{
@@ -317,7 +317,7 @@ int CBTCChinaAPI::getOrder(string& result, unsigned int orderID, marketList mark
 	}
 }
 
-int CBTCChinaAPI::getOrders(string& result, bool openonly, marketList market, unsigned int limit, unsigned int offset)
+int CBTCChinaAPI::getOrders(string& result, bool openonly, MarketType market, unsigned int limit, unsigned int offset)
 {
 	//due to the complexity of parameters, all default values are explicitly set.
 	string method = "getOrders";
@@ -326,7 +326,7 @@ int CBTCChinaAPI::getOrders(string& result, bool openonly, marketList market, un
 	return DoMethod(method, paraBuilder.str(), result);
 }
 
-int CBTCChinaAPI::getTransactions(string& result, transactionTypeList transaction, unsigned int limit, unsigned int offset)
+int CBTCChinaAPI::getTransactions(string& result, TransactionType transaction, unsigned int limit, unsigned int offset)
 {
 	//likewise, set all parameters
 	string method = "getTransactions";
