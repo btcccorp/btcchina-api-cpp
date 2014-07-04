@@ -1,9 +1,8 @@
 #include "BTCChinaAPI.h"
-#include "base64.h"
 
+#include "base64.h"
 #define SHA1_NO_UTILITY_FUNCTIONS //disable fopen in SHA1
 #include "HMAC_SHA1.h"
-
 
 
 using namespace std;
@@ -13,6 +12,7 @@ const string CBTCChinaAPI::url = "https://api.btcchina.com/api_trade_v1.php";
 const string CBTCChinaAPI::markets[4] = { "BTCCNY", "LTCCNY", "LTCBTC", "ALL" };
 const string CBTCChinaAPI::currencies[2] = { "BTC", "LTC" };
 const string CBTCChinaAPI::transactionTypes[12] = { "all", "fundbtc", "withdrawbtc", "fundmoney", "withdrawmoney", "refundmoney", "buybtc", "sellbtc", "buyltc", "sellltc", "tradefee", "rebate" };
+
 //non-member helper functions
 //1.random generator helper
 int randGen()
@@ -36,7 +36,6 @@ CBTCChinaAPI::CBTCChinaAPI(const string& access_key, const string& secret_key) :
 	curl = curl_easy_init();
 }
 
-
 CBTCChinaAPI::~CBTCChinaAPI()
 {
 	curl_easy_cleanup(curl);
@@ -53,6 +52,7 @@ string CBTCChinaAPI::getHmacSha1(const string& key, const string& content)
 		hashBuilder << hex << setfill('0') << setw(2) << (unsigned int)digest[i];
 	return hashBuilder.str();
 }
+
 //get million seconds in windows, thanks to http://www.openasthra.com/wp-content/uploads/gettimeofday.c, which I can't open at the moment.
 //notice that the original unix epoch value is not correct: https://code.google.com/p/tesseract-ocr/issues/detail?id=631#c16
 //unix users have their handy gettimeofday().
@@ -190,6 +190,7 @@ int CBTCChinaAPI::getAccountInfo(string& result)
 	string mParams = "";
 	return DoMethod(method, mParams, result);
 }
+
 //negative price is considered as market price, negative amount as sell, and positive amount as buy. default market is BTCCNY
 int CBTCChinaAPI::PlaceOrder(string& result, double price, double amount, marketList market)
 {
@@ -230,6 +231,7 @@ int CBTCChinaAPI::PlaceOrder(string& result, double price, double amount, market
 
 	return DoMethod(method, mParams, result);
 }
+
 int CBTCChinaAPI::cancelOrder(string& result, int orderID, marketList market)
 {
 	string method = "cancelOrder";
@@ -246,19 +248,7 @@ int CBTCChinaAPI::cancelOrder(string& result, int orderID, marketList market)
 
 	return DoMethod(method, mParams, result);
 }
-//operation=true for getDeposits, false for getWithdrawals
-int CBTCChinaAPI::getOperations(string& result, bool operation, currencyList currency, bool pendingonly)
-{
-	string method = "";
-	if (operation)
-		method = "getDeposits";
-	else
-		method = "getWithdrawals";
-	string mParams = "\"" + currencies[currency] + "\"";
-	if (!pendingonly)
-		mParams += ",false";
-	return DoMethod(method, mParams, result);
-}
+
 int CBTCChinaAPI::getMarketDepth(string& result, unsigned int limit, marketList market)
 {
 	string method = "getMarketDepth2";
@@ -268,6 +258,25 @@ int CBTCChinaAPI::getMarketDepth(string& result, unsigned int limit, marketList 
 		mParams += ",\"" + markets[market] + "\"";
 	return DoMethod(method, mParams, result);
 }
+
+int CBTCChinaAPI::getDeposits(string& result, currencyList currency, bool pendingonly)
+{
+	string method = "getDeposits";
+	string mParams = "\"" + currencies[currency] + "\"";
+	if (!pendingonly)
+		mParams += ",false";
+	return DoMethod(method, mParams, result);
+}
+
+int CBTCChinaAPI::getWithdrawals(string& result, currencyList currency, bool pendingonly)
+{
+	string method = "getWithdrawals";
+	string mParams = "\"" + currencies[currency] + "\"";
+	if (!pendingonly)
+		mParams += ",false";
+	return DoMethod(method, mParams, result);
+}
+
 int CBTCChinaAPI::getWithdrawal(string& result, int withdrawalID, currencyList currency)
 {
 	string method = "getWithdrawal";
@@ -276,6 +285,7 @@ int CBTCChinaAPI::getWithdrawal(string& result, int withdrawalID, currencyList c
 		mParams += ",\"" + currencies[currency] + "\"";//should be "LTC" but for further implmentations
 	return DoMethod(method, mParams, result);
 }
+
 int CBTCChinaAPI::requestWithdrawal(string& result, currencyList currency, double amount)
 {
 	if (amount <= 0)
@@ -289,6 +299,7 @@ int CBTCChinaAPI::requestWithdrawal(string& result, currencyList currency, doubl
 	paraBuilder << "\"" << currencies[currency] << "\"," << setprecision(3) << amount;
 	return DoMethod(method, paraBuilder.str(), result);
 }
+
 int CBTCChinaAPI::getOrder(string& result, unsigned int orderID, marketList market)
 {
 	if (market == ALL)
@@ -305,6 +316,7 @@ int CBTCChinaAPI::getOrder(string& result, unsigned int orderID, marketList mark
 		return DoMethod(method, mParams, result);
 	}
 }
+
 int CBTCChinaAPI::getOrders(string& result, bool openonly, marketList market, unsigned int limit, unsigned int offset)
 {
 	//due to the complexity of parameters, all default values are explicitly set.
@@ -313,6 +325,7 @@ int CBTCChinaAPI::getOrders(string& result, bool openonly, marketList market, un
 	paraBuilder << setiosflags(ios::boolalpha) << openonly << ",\"" << markets[market] << "\"," << limit << "," << offset;
 	return DoMethod(method, paraBuilder.str(), result);
 }
+
 int CBTCChinaAPI::getTransactions(string& result, transactionTypeList transaction, unsigned int limit, unsigned int offset)
 {
 	//likewise, set all parameters

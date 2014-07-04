@@ -14,17 +14,20 @@ class CBTCChinaAPI
 public:
 	explicit CBTCChinaAPI(const std::string& access_key, const std::string& secret_key);
 	~CBTCChinaAPI();
+
 	//err list
 	enum btcERR{ curlERR = -10, methodERR, contentERR, jsonRequestERR }; //every memeber < 0 for if clause
 	enum marketList { BTCCNY = 0, LTCCNY, LTCBTC, ALL };
 	enum currencyList { BTC = 0, LTC };
 	enum transactionTypeList { all = 0, fundbtc, withdrawbtc, fundmoney, withdrawmoney, refundmoney, buybtc, sellbtc, buyltc, sellltc, tradefee, rebate };
+
 	//interface
 	int getAccountInfo(std::string& result);
 	int PlaceOrder(std::string& result, double price, double amount, marketList market = BTCCNY);
 	int cancelOrder(std::string& result, int orderID, marketList market = BTCCNY);
-	int getOperations(std::string& result, bool operation, currencyList currency, bool pendingonly = true);
 	int getMarketDepth(std::string& result, unsigned int limit = 10, marketList market = BTCCNY);
+	int getDeposits(std::string& result, currencyList currency, bool pendingonly = true);
+	int getWithdrawals(std::string& result, bool operation, currencyList currency, bool pendingonly = true);
 	int getWithdrawal(std::string& result, int withdrawalID, currencyList currency = BTC);
 	int requestWithdrawal(std::string& result, currencyList currency, double amount);
 	int getOrder(std::string& result, unsigned int orderID, marketList market = BTCCNY);

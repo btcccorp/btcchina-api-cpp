@@ -10,9 +10,11 @@ int main(int argc, char* argv[])
 {
 	if (argc < 2)
 	{
-		cout << "usage: cpp-wrapper.exe acc-filename" << endl << "first line is accesskey and second line is secretkey" << endl;
+		cout << "usage: cpp-wrapper.exe acc-filename" << endl
+    		 << "first line is accesskey and second line is secretkey" << endl;
 		return -1;
 	}
+	
 	ifstream ifs(argv[1]);
 	if (ifs.bad())
 	{
