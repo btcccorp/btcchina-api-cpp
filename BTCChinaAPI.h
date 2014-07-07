@@ -27,7 +27,7 @@ public:
 	int cancelOrder(std::string& result, int orderID, MarketType market = BTCCNY);
 	int getMarketDepth(std::string& result, unsigned int limit = 10, MarketType market = BTCCNY);
 	int getDeposits(std::string& result, CurrencyType currency, bool pendingonly = true);
-	int getWithdrawals(std::string& result, bool operation, CurrencyType currency, bool pendingonly = true);
+	int getWithdrawals(std::string& result, CurrencyType currency, bool pendingonly = true);
 	int getWithdrawal(std::string& result, int withdrawalID, CurrencyType currency = BTC);
 	int requestWithdrawal(std::string& result, CurrencyType currency, double amount);
 	int getOrder(std::string& result, unsigned int orderID, MarketType market = BTCCNY);

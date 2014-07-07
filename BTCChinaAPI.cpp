@@ -29,9 +29,8 @@ static size_t postCallBack(void *content, size_t size, size_t nmemb, void *userp
 	return size*nmemb;
 }
 
-CBTCChinaAPI::CBTCChinaAPI(const string& access_key, const string& secret_key) :accessKey(access_key), secretKey(secret_key), curl(NULL)
+CBTCChinaAPI::CBTCChinaAPI(const string& access_key, const string& secret_key):accessKey(access_key), secretKey(secret_key), curl(NULL)
 {
-	
 	//setup curl library, check if curl=null every time.
 	curl = curl_easy_init();
 }
@@ -53,11 +52,19 @@ string CBTCChinaAPI::getHmacSha1(const string& key, const string& content)
 	return hashBuilder.str();
 }
 
-//get million seconds in windows, thanks to http://www.openasthra.com/wp-content/uploads/gettimeofday.c, which I can't open at the moment.
-//notice that the original unix epoch value is not correct: https://code.google.com/p/tesseract-ocr/issues/detail?id=631#c16
-//unix users have their handy gettimeofday().
+//get million seconds
+//using different code for *nix and windows
 string CBTCChinaAPI::getMillSec()
 {
+	stringstream timeFormat;
+#if defined(unix) || defined(__unix__) || defined(__unix)
+	//*nix, gettimeofday()
+	struct timeval start;
+    gettimeofday(&start, NULL);
+    timeFormat << start.tv_sec * 1000000LL + start.tv_usec;
+#elif defined(_WIN32)
+	//windows, thanks to http://www.openasthra.com/wp-content/uploads/gettimeofday.c, which I can't open at the moment.
+	//notice that the original unix epoch value is not correct: https://code.google.com/p/tesseract-ocr/issues/detail?id=631#c16
 	const unsigned long long unixEpoch = 116444736000000000ULL;
 	FILETIME ft;
 	unsigned long long tmpT = 0;
@@ -68,8 +75,11 @@ string CBTCChinaAPI::getMillSec()
 	tmpT |= ft.dwLowDateTime;
 	//convert to unix million seconds time
 	tmpT -= unixEpoch;
-	stringstream timeFormat;
 	timeFormat << tmpT / 10;
+#else
+	#error UNKOWN_SYS
+#endif
+	//end of platform-specific routines
 	return timeFormat.str();
 }
 
@@ -81,12 +91,15 @@ int CBTCChinaAPI::DoMethod(const string& method, const string& mParams, string& 
 	if (curl)
 	{
 		//get random number
-		string methodID = to_string(randGen());
+		stringstream temps;
+		temps << randGen();
+		string methodID = temps.str();
 		//compensate for non-JSON format signature
 		string modified_mParams(mParams);
 		replaceAll(modified_mParams, "true", "1");
 		replaceAll(modified_mParams, "false", "");
 		replaceAll(modified_mParams, "\"", "");
+		replaceAll(modified_mParams, "null", "");
 		// Get authorization token.
 		string tonce = getMillSec();
 		stringstream authInput;
@@ -97,7 +110,6 @@ int CBTCChinaAPI::DoMethod(const string& method, const string& mParams, string& 
 			<< "&method=" << method
 			<< "&params=" << modified_mParams;
 		string paramsHash = getHmacSha1(secretKey, authInput.str());
-		
 		//thanks to ReneNyffenegger at https://github.com/ReneNyffenegger/development_misc/tree/master/base64 for base64encoding
 		string authString = accessKey + ":" + paramsHash;
 		string authToken = base64_encode((unsigned char*)authString.c_str(), authString.length());
@@ -122,6 +134,7 @@ int CBTCChinaAPI::DoMethod(const string& method, const string& mParams, string& 
 		curl_easy_setopt(curl, CURLOPT_POST, 1);
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, httpHeaders);
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_content.c_str());
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 		//setup callback options to read response
 		string response = "";
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
@@ -149,6 +162,13 @@ int CBTCChinaAPI::DoMethod(const string& method, const string& mParams, string& 
 			return jsonRequestERR;
 		}
 		result = result.substr(p);
+		//there are two kinds of API response, initiated with either "result" or "error".
+		p = result.find_first_of("result");
+		if(p < 0)
+		{
+			result = "JSON-request-error in " + method + ":\n" + response;
+			return jsonRequestERR;
+		}
 		//compare returned json-request-id
 		p = result.find_last_of(':');
 		if (result.substr(p + 2, result.length() - p - 4) != methodID)//format: ,"id":"xxx"}
@@ -192,7 +212,7 @@ int CBTCChinaAPI::getAccountInfo(string& result)
 }
 
 //negative price is considered as market price, negative amount as sell, and positive amount as buy. default market is BTCCNY
-int CBTCChinaAPI::PlaceOrder(string& result, double price, double amount, MarketType market)
+int CBTCChinaAPI::placeOrder(string& result, double price, double amount, MarketType market)
 {
 	stringstream orderBuilder;
 	orderBuilder << setiosflags(ios::fixed);
@@ -235,7 +255,8 @@ int CBTCChinaAPI::PlaceOrder(string& result, double price, double amount, Market
 int CBTCChinaAPI::cancelOrder(string& result, int orderID, MarketType market)
 {
 	string method = "cancelOrder";
-	string mParams = to_string(orderID);
+	stringstream mParams;
+	mParams << orderID;
 	//all is not supported
 	if (market == ALL)
 	{
@@ -244,19 +265,19 @@ int CBTCChinaAPI::cancelOrder(string& result, int orderID, MarketType market)
 	}
 	//not default market
 	if (market != BTCCNY)
-		mParams += ",\"" + markets[market] + "\"";
+		mParams << ",\"" << markets[market] << "\"";
 
-	return DoMethod(method, mParams, result);
+	return DoMethod(method, mParams.str(), result);
 }
 
 int CBTCChinaAPI::getMarketDepth(string& result, unsigned int limit, MarketType market)
 {
 	string method = "getMarketDepth2";
-	string mParams = "";
-	if (limit != 10) mParams = to_string(limit);
+	stringstream mParams;
+	if (limit != 10) mParams << limit;
 	if (market != BTCCNY)
-		mParams += ",\"" + markets[market] + "\"";
-	return DoMethod(method, mParams, result);
+		mParams << ",\"" << markets[market] << "\"";
+	return DoMethod(method, mParams.str(), result);
 }
 
 int CBTCChinaAPI::getDeposits(string& result, CurrencyType currency, bool pendingonly)
@@ -280,10 +301,11 @@ int CBTCChinaAPI::getWithdrawals(string& result, CurrencyType currency, bool pen
 int CBTCChinaAPI::getWithdrawal(string& result, int withdrawalID, CurrencyType currency)
 {
 	string method = "getWithdrawal";
-	string mParams = to_string(withdrawalID);
+	stringstream mParams;
+	mParams << withdrawalID;
 	if (currency != BTC)
-		mParams += ",\"" + currencies[currency] + "\"";//should be "LTC" but for further implmentations
-	return DoMethod(method, mParams, result);
+		mParams << ",\"" << currencies[currency] << "\"";//should be "LTC" but for further implmentations
+	return DoMethod(method, mParams.str(), result);
 }
 
 int CBTCChinaAPI::requestWithdrawal(string& result, CurrencyType currency, double amount)
@@ -310,10 +332,11 @@ int CBTCChinaAPI::getOrder(string& result, unsigned int orderID, MarketType mark
 	else
 	{
 		string method = "getOrder";
-		string mParams = to_string(orderID);
+		stringstream mParams;
+		mParams << orderID;
 		if (market != BTCCNY)
-			mParams += ",\"" + markets[market] + "\"";
-		return DoMethod(method, mParams, result);
+			mParams << ",\"" << markets[market] << "\"";
+		return DoMethod(method, mParams.str(), result);
 	}
 }
 
