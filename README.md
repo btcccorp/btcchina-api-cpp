@@ -76,7 +76,7 @@ _Result:_
 
 ###Cancel order
 ```C++
-cancelOrder(string result, int orderID, MarketType market = BTCCNY);
+btcAPI.cancelOrder(string result, int orderID, MarketType market = BTCCNY);
 ```
 _Parameters:_
 
@@ -88,7 +88,7 @@ _Result_:
 
 ###Get Market Depth
 ```C++
-getMarketDepth(string result, unsigned  limit = 10, MarketType market = BTCCNY);
+btcAPI.getMarketDepth(string result, unsigned int limit = 10, MarketType market = BTCCNY);
 ```
 
 Get the complete market depth.
@@ -102,7 +102,7 @@ _Result:_
 
 ###Get Deposits
 ```C++
-getDeposits(string result, CurrencyType currency, bool pendingonly = true);
+btcAPI.getDeposits(string result, CurrencyType currency, bool pendingonly = true);
 ```
 
 Get all user deposits.
@@ -117,7 +117,7 @@ Array of [deposit](http://btcchina.org/api-trade-documentation-en#deposit) JSON 
 
 ###Get Withdrawals
 ```C++
-getWithdrawals(string result, CurrencyType currency, bool pendingonly = true);
+btcAPI.getWithdrawals(string result, CurrencyType currency, bool pendingonly = true);
 ```
 
 Get all user withdrawals.
@@ -132,7 +132,7 @@ _Result:_
 
 ###Get single withdrawal status
 ```C++
-getWithdrawal(string result, int withdrawalID, CurrencyType currency = BTC);
+btcAPI.getWithdrawal(string result, int withdrawalID, CurrencyType currency = BTC);
 ```
 
 _Parameters:_
@@ -145,7 +145,7 @@ _Result:_
 
 ###Request a withdrawal
 ```C++
-requestWithdrawal(string result, CurrencyType currency, double amount);
+btcAPI.requestWithdrawal(string result, CurrencyType currency, double amount);
 ```
 
 Make a withdrawal request. BTC withdrawals will pick last used withdrawal address from user profile.
@@ -161,7 +161,7 @@ Notice that the return format of withdrawalID is different from that of orderID.
 
 ###Get order status
 ```C++
-getOrder(string result, unsigned int orderID, MarketType market = BTCCNY);
+btcAPI.getOrder(string result, unsigned int orderID, MarketType market = BTCCNY);
 ```
 
 _Parameters:_
@@ -174,7 +174,7 @@ _Result:_
 
 ###Get all order status
 ```C++
-getOrders(string result, bool openonly = true, MarketType market = BTCCNY, unsigned  limit = 1000, unsigned int offset = 0);
+btcAPI.getOrders(string result, bool openonly = true, MarketType market = BTCCNY, unsigned int limit = 1000, unsigned int offset = 0);
 ```
 
 _Parameters:_
@@ -189,7 +189,7 @@ Array of [order](http://btcchina.org/api-trade-documentation-en#order) JSON obje
 
 ###Get transaction log
 ```C++
-getTransactions(string result, TransactionType transaction = all, unsigned int limit = 10, unsigned int offset = 0);
+btcAPI.getTransactions(string result, TransactionType transaction = all, unsigned int limit = 10, unsigned int offset = 0);
 ```
 
 Notice that prices returned by this method may differ from placeOrder as it is the price get procceeded.
