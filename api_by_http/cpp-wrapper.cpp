@@ -14,9 +14,8 @@ int main(int argc, char* argv[])
     		 << "first line is accesskey and second line is secretkey" << endl;
 		return -1;
 	}
-	
 	ifstream ifs(argv[1]);
-	if (ifs.bad())
+	if (!ifs.is_open())
 	{
 		cout << "error open file:" << argv[1] << endl;
 		return -1;
@@ -28,13 +27,12 @@ int main(int argc, char* argv[])
 		getline(ifs, secretkey);
 		CBTCChinaAPI testAPI(accesskey, secretkey);
 		string result1, result2;
-		cout << clock() << endl;
 		testAPI.getAccountInfo(result1);
-		cout << clock() << endl;
-		testAPI.getOrders(result2, false);
+		testAPI.getDeposits(result2, CBTCChinaAPI::BTC);
 		cout << result2 << endl;
 		cout << result1 << endl;
 		return 0;
 	}
+	ifs.close();
 }
 
