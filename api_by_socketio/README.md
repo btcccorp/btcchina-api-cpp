@@ -14,6 +14,19 @@ cygwin:
 ```
 g++ sample.cpp socketio.cpp -I../websocketpp -lcurl -lssl -lcrypto -lboost_system-mt -lboost_random-mt
 ```
+###Comments:
+for boost:
+error:
+ld: library not found for -lboost_system-mt
+ld: library not found for -lboost_random-mt
+solution:
+see ls /usr/local/lib/libboost* for more info, if libboost_system.dylib exists, use -llboost_system/-lboost_random instead then, otherwise, need to rebuild boosts library.
+
+for openssl:
+error:
+unsupported inline asm,etc.
+solution:
+./config --with-openssl-dir=/usr/local/etc/openssl to correctly set up the default drectory for openssl.
 
 ###Special thanks
 - https://github.com/betai/Xamarin.Socket.IO for the great work on handling socket.io handshake and messages in a minimalistic way.

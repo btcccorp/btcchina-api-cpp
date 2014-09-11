@@ -49,6 +49,7 @@ bool CSocketIOpp::getSocketioConfig()
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+		cout << "response is: " << response.c_str();
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallBack);
 		curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curlErrBuffer);
 		CURLcode res = curl_easy_perform(curl);
@@ -116,8 +117,16 @@ void CSocketIOpp::on_message(websocketpp::connection_hdl hdl, message_ptr msg)
 								websocketpp::frame::opcode::text);
 		else if (sio == sioType["EVENT"])
 		{
+/*
 			if(payload.substr(4, 5) == "trade")//listen on "trade"
 				cout << payload.substr(payload.find_first_of('{'), payload.find_last_of('}') - payload.find_first_of('{') + 1) << endl;
+			else if(payload.substr(4, 5) == "ticker")//listen on "ticker"
+				cout << payload.substr(payload.find_first_of('{'), payload.find_last_of('}') - payload.find_first_of('{') + 1) << endl;
+			else 
+				cout << payload.c_str() << endl;
+*/
+				cout << payload.c_str() << endl;
+                      
 		}
 	}
 	else if(eio == eioType["PING"])
