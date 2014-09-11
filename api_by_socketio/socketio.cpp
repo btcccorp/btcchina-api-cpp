@@ -49,7 +49,6 @@ bool CSocketIOpp::getSocketioConfig()
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-		cout << "response is: " << response.c_str();
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallBack);
 		curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curlErrBuffer);
 		CURLcode res = curl_easy_perform(curl);
