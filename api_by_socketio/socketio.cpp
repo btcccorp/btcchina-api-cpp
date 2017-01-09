@@ -112,7 +112,7 @@ void CSocketIOpp::on_message(websocketpp::connection_hdl hdl, message_ptr msg)
 		if(sio == sioType["CONNECT"])
 			m_socketio.send(hdl, eioType["MESSAGE"] + 
 								sioType["EVENT"] + 
-								"[\"subscribe\",[\"marketdata_cnybtc\",\"marketdata_cnyltc\",\"marketdata_btcltc\"]]",
+								"[\"subscribe\",[\"marketdata_cnybtc\",\"marketdata_cnyltc\"]]",
 								websocketpp::frame::opcode::text);
 		else if (sio == sioType["EVENT"])
 		{
