@@ -17,7 +17,7 @@ public:
 
 	//err list
 	enum btcERR{ curlERR = -10, methodERR, contentERR, jsonRequestERR }; //every memeber < 0 for if clause
-	enum MarketType { BTCCNY = 0, LTCCNY, LTCBTC, ALL };
+	enum MarketType { BTCCNY = 0, LTCCNY, ALL };
 	enum CurrencyType { BTC = 0, LTC };
 	enum TransactionType { all = 0, fundbtc, withdrawbtc, fundmoney, withdrawmoney, refundmoney, buybtc, sellbtc, buyltc, sellltc, tradefee, rebate };
 
